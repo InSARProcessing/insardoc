@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+RSLC_TAB=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/rslc_crop_tab
+ITAB=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/itab
+OUTDIR=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/interferograms
+DIFFDIR=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/DIFF_R
+RSLCDIR=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/RSLC_CROP
+RMLIDIR=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/RMLI_CROP
+UNWDIR=/mnt/e/Fucheng_ICEYE/GAMMA_WORKSPACE/DIFF_noATM
+mlks=_3rlks
+mkdir -p "$OUTDIR"
+
+# 遍历 itab 中标记为有效 (flag=1) 的干涉对
+awk '$4==1 {print $1, $2}' "$ITAB" | while read -r midx sidx; do
+  # 取主/从的文件与par
+  m_slc=$(awk -v i="$midx" 'NR==i{print $1}' "$RSLC_TAB")
+  s_slc=$(awk -v i="$sidx" 'NR==i{print $1}' "$RSLC_TAB")
+  m_par=$(awk -v i="$midx" 'NR==i{print $2}' "$RSLC_TAB")
+  s_par=$(awk -v i="$sidx" 'NR==i{print $2}' "$RSLC_TAB")
+
+  m_id=$(basename "$m_slc" .rslc)
+  s_id=$(basename "$s_slc" .rslc)
+  pair="${m_id}_${s_id}"     # 或改为下划线命名
+  mkdir -p "${OUTDIR}/${pair}" 
+
+  m_mli="${RMLIDIR}/${m_id}.rmli"
+  s_mli="${RMLIDIR}/${s_id}.rmli"
+  m_mli_par="${RMLIDIR}/${m_id}.rmli.par"
+  s_mli_par="${RMLIDIR}/${s_id}.rmli.par"
+  # 该对的 off / diff_par（按你的生成习惯尝试匹配）
+  off_file="${DIFFDIR}/${m_id}-${s_id}.off"
+  [ -f "$off_file" ] || off_file="${DIFFDIR}/${pair}.off"
+  [ -f "$off_file" ] || off_file=$(ls ${DIFFDIR}/*${m_id}*${s_id}*.off 2>/dev/null | head -n1)
+
+  # 拷贝对应文件到输出目录
+  cp -f "${DIFFDIR}/${pair}.adf.cc" "${OUTDIR}/${pair}/${pair}${mlks}.adf.cor"
+  cp -f "${UNWDIR}/${pair}.adf.unw" "${OUTDIR}/${pair}/${pair}${mlks}.adf.unw"
+  cp -f "${DIFFDIR}/${pair}.off" "${OUTDIR}/${pair}/${pair}${mlks}.off"
+
+  cp -f "${RMLIDIR}/${m_id}.rmli.par" "${OUTDIR}/${pair}/${m_id}${mlks}.mli.par"
+  cp -f "${RMLIDIR}/${s_id}.rmli.par" "${OUTDIR}/${pair}/${s_id}${mlks}.mli.par"
+
+  # 1) 计算该对 baseline
+  base_orbit "$m_mli_par" "$s_mli_par" "${OUTDIR}/${pair}/${pair}${mlks}.baseline"
+
+  # 2) 计算该对逐距离像元的 B⊥（输出名会以 .base_perp 结尾）
+  base_perp  "${OUTDIR}/${pair}/${pair}${mlks}.baseline" "${m_mli_par}" "${off_file}" > "${OUTDIR}/${pair}/${pair}${mlks}.base_perp"
+
+  # 3) 计算该对的corner_full
+  SLC_corners "${RMLIDIR}/${m_id}.rmli.par" - - > "${OUTDIR}/${pair}/${m_id}${mlks}.corner_full"
+
+done
