@@ -1,8 +1,9 @@
 import os
 import sys
 import glob
-import argparse
 import yaml
+import shutil
+import argparse
 from datetime import datetime, timedelta
 from .utils import _parse_safe_filename, _find_matching_orbit
 
@@ -24,8 +25,10 @@ def main():
     args = parser.parse_args()
 
     if not os.path.exists(args.config_file):
-        print(f"Error: Configuration file not found {args.config_file}")
-        sys.exit(1)
+        print(
+            f"Warning: Configuration file not found {args.config_file}, Copying default_config.yaml to {args.config_file}")
+        default_config = os.path.join(os.path.dirname(__file__), "default", "s1_cslc_geo.yaml")
+        shutil.copy(default_config, args.config_file)
 
     # Read YAML
     print(f"Reading: {args.config_file} ...")
