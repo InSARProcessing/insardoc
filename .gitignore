@@ -1,0 +1,269 @@
+# ---> Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+build_dist/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+_version_.py
+_version.py
+*/_version_.py
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask
+instance/
+.webassets-cache
+
+# Scrapy
+.scrapy
+
+# Sphinx
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Cython
+cython_debug/
+
+# ---> C/C++
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Static libraries
+*.a
+*.lib
+*.la
+*.lai
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran modules
+*.mod
+*.smod
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Kernel modules
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# ---> Qt5 (专为 TYInSAR 项目定制)
+# Qt Creator 用户配置文件（含项目ID后缀）
+*.pro.user
+*.pro.user.*
+*.user
+
+# Qt 构建目录（自动创建）
+build-*/
+build-*.Debug
+build-*.Release
+build-TYInSAR-*
+build-ty_insar-*
+
+# Qt 生成文件（由 moc, uic, rcc 生成）
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+
+# Qt 编译中间文件
+*.qmake.stash
+*.qmake.cache
+
+# Qt 编译日志与缓存
+.qmake.super
+.qmake.env
+
+# Qt 项目输出目录
+/src/core/build-*
+/src/core/TYInSAR/*.pro.user*
+/src/core/external_lib/fftw3.3.10/include/*
+/src/core/external_lib/lapack3.12.1/include/*
+/src/core/external_lib/lapack3.12.1/lib_ubuntu/pkgconfig/*
+/src/core/external_lib/lapack3.12.1/lib_win/pkgconfig/*
+/src/core/external_lib/gdal3.8.5/*
+/src/core/external_lib/proj-9.4.0/*
+/src/core/external_lib/sqlite3.45.3/*
+/src/core/external_lib/zlib_1.3.1/*
+/src/core/external_src/
+/src/core/Makefile.Debug
+/src/core/Makefile
+/src/core/.qmake.stash
+/src/core/tools.code-workspace
+/src/core/debug
+/src/core/release
+/src/core/Makefile.Release
+/src/core/.qtc_clangd
+/src/core/debug/
+/src/core/release/
+
+# snaphu 构建目录
+/src/snaphu/bin/snaphu
+
+# depsi m代码
+/src/pdepsi/override_m/
+
+# 忽略所有 Qt5 生成的 .pro.user 文件（无论在哪一层）
+**/*.pro.user
+**/*.pro.user.*
+
+# ---> 通用
+# OS
+.DS_Store
+Thumbs.db
+
+# 编辑器/IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.sublime-project
+*.sublime-workspace
+
+# 日志与临时文件
+*.log
+*.tmp
+*.temp
+*.bak
+*.old
+~*
+
