@@ -7,10 +7,10 @@ conda activate opera
 conda install -c conda-forge isce3-cuda compass 
 ```
 
-### 2. 可选：源码安装 `COMPASS`和`S1-READER`
+### 2. 推荐：源码安装 `COMPASS`和`S1-READER`
 1. 安装 `COMPASS`
 ```bash
-git clone https://github.com/opera-adt/COMPASS.git && cd COMPASS
+git clone https://github.com/InSARProcessing/COMPASS.git && cd COMPASS
 conda env update --name opera --file environment.yml
 python -m pip install -e .
 ```

@@ -2,7 +2,7 @@
 ```bash
 conda install -c dolphin
 # GPU 配置 - 在已安装12.版本cuda的情况下
-pip install --upgrade "jax[cuda12]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+pip install --upgrade "jax[cuda12]"
 ```
 如果没有安装 `cuda-toolkit`, 则需要手动安装。
 ```bash

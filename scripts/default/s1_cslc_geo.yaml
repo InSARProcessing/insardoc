@@ -1,175 +1,135 @@
 runconfig:
-    name: str()
+  name: cslc_s1_workflow_default
 
-    groups:
-        pge_name_group:
-           pge_name: enum('CSLC_S1_PGE')
+  groups:
+      pge_name_group:
+          pge_name: CSLC_S1_PGE
 
-        input_file_group:
-           # Required. List of SAFE files (min=1)
-           safe_file_path: list(str(), min=1)
-           # Required. List of orbit (EOF) files
-           orbit_file_path: list(str(), min=1)
-           # The unique burst ID(s) to process. If nothing provided, all bursts
-           # in a SAFE will processed
-           burst_id: list(str(), min=1, required=False)
+      input_file_group:
+          # Required. List of SAFE files (min=1)
+          safe_file_path:
+          # Required. List of orbit (EOF) files (min=1)
+          orbit_file_path:
+          # The unique burst ID(s) to process. If nothing provided, all bursts
+          # in a SAFE will processed
+          burst_id:
 
-        dynamic_ancillary_file_group:
-           # Digital Elevation Model.
-           dem_file: str(required=False)
-           # Description for DEM used for the processing
-           dem_description: str(required=False)
-           # TEC file in IONEX format for ionosphere correction
-           tec_file: str(required=False)
-           # Troposphere weather model
-           weather_model_file: str(required=False)
+      dynamic_ancillary_file_group:
+          # Digital elevation model
+          dem_file:
+          # Description for DEM used for the processing
+          dem_description: DEM description was not provided.
+          # TEC file in IONEX format for ionosphere correction
+          tec_file:
+          # Troposphere weather model file
+          weather_model_file:
 
-        static_ancillary_file_group:
-           # burst database sqlite file
-           burst_database_file: str(required=False)
+      static_ancillary_file_group:
+          # burst database sqlite file
+          burst_database_file:
 
-        product_path_group:
-           # Directory where PGE will place results
-           product_path: str()
-           # Directory where SAS can write temporary data
-           scratch_path: str()
-           # Intermediate file name. SAS writes the output to this file.
-           # PGE may rename the product according to file naming convention
-           sas_output_file: str()
-           # Product version
-           product_version: str(required=False)
-           # Product specification document version
-           product_specification_version: str(required=False)
+      product_path_group:
+          # Directory where PGE will place results
+          product_path:
+          # Directory where SAS writes temporary data
+          scratch_path:
+          # Intermediate file name. SAS writes the output to this file.
+          # PGE may rename the product according to file naming convention
+          sas_output_file:
+          # Product version
+          product_version: '0.2'
+          # Product specification document version
+          product_specification_version: '0.1'
 
-        primary_executable:
-          product_type: enum('CSLC_S1', 'CSLC_S1_STATIC')
+      primary_executable:
+          product_type: CSLC_S1
 
-        # This section includes parameters to tweak the workflow
-        processing: include('processing_options', required=False)
+      processing:
+          polarization: co-pol
+          geocoding:
+              flatten: True
+              x_posting:
+              y_posting:
+              x_snap:
+              y_snap:
+          geo2rdr:
+              lines_per_block: 1000
+              threshold: 1.0e-8
+              numiter: 25
 
-        # Worker options (e.g. enable/disable GPU processing, select GPU device ID)
-        worker: include('worker_options', required=False)
+          correction_luts:
+              # Boolean flag to activate/deactivate model-based
+              # corrections while geocoding the burst
+              enabled: True
+              # LUT spacing in range direction in meters
+              range_spacing: 120
+              # LUT spacing in azimuth direction in seconds
+              azimuth_spacing: 0.028
+              # Troposphere delay using weather model
+              troposphere:
+                 # Type of troposphere delay. Any of 'dry', 'wet' or 'wet_dry' for
+                 # the sum of wet and dry delays
+                 delay_type: wet_dry
 
-        # Quality assurance options
-        quality_assurance: include('quality_assurance_options', required=False)
+          rdr2geo:
+              # Convergence threshold for rdr2geo algorithm
+              threshold: 1.0e-8
+              # Maximum number of iterations
+              numiter: 25
+              # Lines per block to process in batch
+              lines_per_block: 1000
+              # Secondary number of iterations
+              extraiter: 10
+              # Enable/disable computation of latitude raster
+              compute_latitude: False
+              # Enable/disable computation of longitude raster
+              compute_longitude: False
+              # Enable/disable computation of height raster
+              compute_height: False
+              # Enable/disable layover shadow mask output
+              compute_layover_shadow_mask: True
+              # Enable/disable local incidence output
+              compute_local_incidence_angle: True
+              # Enable/disable ground to satellite East LOS vector
+              compute_ground_to_sat_east: True
+              # Enable/disable ground to satellite North LOS vector
+              compute_ground_to_sat_north: True
 
-        # Output options for geocoded rasters (CSLC datatype, compression, chunking, shuffle filter)
-        output: include('output_options', required=False)
+      worker:
+          # Optional. To prevent downloading DEM or other data (default: False)
+          internet_access: False
+          # Optional. Use GPU capabilities if available (default: False)
+          gpu_enabled: False
+          # Optional. Index of GPU to be used for processing. Ignored if
+          # *gpu_enabled* is False (default: 0)
+          gpu_id: 0
 
----
-# Group of processing options
-processing_options:
-   # Polarization to process. 3 modes below correspond to VV, VH, VV+VH
-   polarization: enum('co-pol', 'cross-pol', 'dual-pol', required=False)
-   # Options to run geocoding
-   geocoding: include('geocoding_options', required=False)
-   # Options to run geo2rdr
-   geo2rdr: include('geo2rdr_options', required=False)
-   # Options to generate model-based slant range and azimuth correction LUTs
-   correction_luts: include('lut_options', required=False)
-   # Computation of topo layers
-   rdr2geo: include('rdr2geo_options', required=False)
+      quality_assurance:
+          browse_image:
+              # Enable/disable generation of CSLC browse image
+              enabled: True
+              # How to convert complex CSLC to real
+              complex_to_real: amplitude
+              # Lower percentile of non-nan pixels to clip
+              percent_low: 0
+              # Higher percentile of non-nan pixels to clip
+              percent_high: 95
+              # Gamma exponent applied to normalized image
+              gamma: 0.5
+              # Enable/disable histogram equalization
+              equalize: False
+          perform_qa: True
+          output_to_json: False
 
-geocoding_options:
-    # Boolean flag to enable/disable flattening
-    flatten: bool(required=False)
-    # Product posting along X (same units as burst center EPSG)
-    x_posting: num(min=0, required=False)
-    # Product posting along Y (same units as burst center EPSG)
-    y_posting: num(min=0, required=False)
-    # Controls the product grid along X (same units as burst center EPSG)
-    x_snap: num(min=0, required=False)
-    # Controls the product grid along Y (same units as burst center EPSG)
-    y_snap: num(min=0, required=False)
-
-geo2rdr_options:
-    # Convergence threshold for geo2rdr algorithm
-    threshold: num(min=0, required=False)
-    # Maximum number of iterations
-    numiter: int(min=1, required=False)
-    # Lines per block to process in batch
-    lines_per_block: int(min=1, required=False)
-
-lut_options:
-  # Boolean flag to activate/deactivate model-based
-  # corrections while geocoding the burst
-  enabled: bool(required=False)
-  # LUT spacing in range direction in meters
-  range_spacing: num(min=0, required=False)
-  # LUT spacing in azimuth direction in seconds
-  azimuth_spacing: num(min=0, required=False)
-  # Troposphere delay using weather model
-  troposphere: include('troposphere_options', required=False)
-
-troposphere_options:
-  # Type of troposphere delay. Any of 'dry', 'wet' or 'wet_dry' for
-  # the sum of wet and dry delays
-  delay_type: enum('dry', 'wet', 'wet_dry', required=False)
-
-rdr2geo_options:
-    # Convergence threshold for rdr2geo algorithm
-    threshold: num(min=0, required=False)
-    # Maximum number of iterations
-    numiter: int(min=1, required=False)
-    # Lines per block to process in batch
-    lines_per_block: int(min=1, required=False)
-    # Secondary number of iterations
-    extraiter: int(min=1, required=False)
-    # Enable/disable computation of latitude raster
-    compute_latitude: bool(required=False)
-    # Enable/disable computation of longitude raster
-    compute_longitude: bool(required=False)
-    # Enable/disable computation of height raster
-    compute_height: bool(required=False)
-    # Enable/disable layover shadow mask output
-    compute_layover_shadow_mask: bool(required=False)
-    # Enable/disable local incidence output
-    compute_local_incidence_angle: bool(required=False)
-    # Enable/disable ground to satellite East LOS vector
-    compute_ground_to_sat_east: bool(required=False)
-    # Enable/disable ground to satellite North LOS vector
-    compute_ground_to_sat_north: bool(required=False)
-
-worker_options:
-    # To prevent downloading DEM / other data automatically. Default True
-    internet_access: bool(required=False)
-    # Enable/Disable GPU processing capabilities. Default False
-    gpu_enabled: bool(required=False)
-    # Index of the GPU to use for processing, optional. Defaults to the
-    # first available CUDA device. Ignored if *gpu_enabled* is False.
-    gpu_id: int(min=0, required=False)
-
-quality_assurance_options:
-    # Options for generating browse images
-    browse_image: include('browse_image_options', required=False)
-    # Enable/disable computation of statistics of CSLC rasters and corrections
-    perform_qa: bool(required=False)
-    # Enable/disable writing of QA information to JSON
-    output_to_json: bool(required=False)
-
-browse_image_options:
-    # Enable/disable generation of CSLC browse image
-    enabled: bool(required=False)
-    # How to convert complex CSLC to real
-    complex_to_real: enum('amplitude', 'intensity', 'logamplitude', required=False)
-    # Lower percentile of non-nan pixels to clip
-    percent_low: num(min=0, required=False)
-    # Higher percentile of non-nan pixels to clip
-    percent_high: num(min=0, required=False)
-    # Gamma exponent applied to normalized image
-    gamma: num(min=0, required=False)
-    # Enable/disable histogram equalization
-    equalize: bool(required=False)
-
-output_options:
-    # Data type of CSLC raster (default complex64_zero_mantissa)
-    cslc_data_type: enum('complex32', 'complex64', 'complex64_zero_mantissa', required=False)
-    # Enable/disable gzip compression of raster (default True)
-    compression_enabled: bool(required=False)
-    # Level of compression applied to raster (default 4)
-    # 1 - least compression, 9 - best compresssion
-    compression_level: int(min=1, max=9, required=False)
-    # Chunk size of raster (default [128, 128])
-    chunk_size: list(int(min=4), min=2, max=2, required=False)
-    # Enable/disable shuffle filtering of rasters (default True)
-    shuffle: bool(required=False)
+      # Output options for CSLC raster (e.g. compression, chunking, shuffle filter)
+      output:
+          # Data type of CSLC raster
+          cslc_data_type: complex64_zero_mantissa
+          # Enable gzip compression of rasters
+          compression_enabled: True
+          # Level of compression applied to rasters
+          compression_level: 4
+          # Chunk size of rasters
+          chunk_size: [128, 128]
+          # Enable shuffle filtering of rasters
+          shuffle: True

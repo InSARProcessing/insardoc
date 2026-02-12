@@ -69,7 +69,7 @@ def _find_matching_orbit(orbit_list: List[str], mission: str, date1: str, date2:
 def args_parser():
     parser = argparse.ArgumentParser(description="Update S1 CSLC configuration file (yaml)")
     # Required argument: configuration file path
-    parser.add_argument("config_file", help="Path to the .yaml configuration file to modify")
+    parser.add_argument("config_file", dest='config_file', help="Path to the .yaml configuration file to modify")
 
     # Optional arguments: define according to your yaml structure
     parser.add_argument("--safe-dir", dest='safe_dir', type=str, required=True, help="SAFE file directory")
@@ -84,16 +84,23 @@ def args_parser():
     return args
 
 
-def main(args):
-    if not os.path.exists(args.config_file):
+def main(config_file: str,
+         safe_dir: str,
+         orbit_dir: str,
+         dem_file: str,
+         product_path: str,
+         scratch_path: str,
+         sas_file: str,
+         gpu_enabled: bool = True):
+    if not os.path.exists(config_file):
         print(
-            f"Warning: Configuration file not found {args.config_file}, Copying default_config.yaml to {args.config_file}")
+            f"Warning: Configuration file not found {config_file}, Copying default_config.yaml to {config_file}")
         default_config = os.path.join(os.path.dirname(__file__), "default", "s1_cslc_geo.yaml")
-        shutil.copy(default_config, args.config_file)
+        shutil.copy(default_config, config_file)
 
     # Read YAML
-    print(f"Reading: {args.config_file} ...")
-    with open(args.config_file, 'r') as f:
+    print(f"Reading: {config_file} ...")
+    with open(config_file, 'r') as f:
         config = yaml.safe_load(f)
 
     # Get reference to groups node for easier access later
@@ -104,11 +111,11 @@ def main(args):
         sys.exit(1)
 
     # --- Update input_file_group ---
-    safe_files = glob.glob(os.path.join(args.safe_dir, "S1*_IW_*"))
+    safe_files = glob.glob(os.path.join(safe_dir, "S1*_IW_*"))
     print(f"Updating safe_file_path: {len(safe_files)} files")
     groups['input_file_group']['safe_file_path'] = safe_files
 
-    orbit_files = glob.glob(os.path.join(args.orbit_dir, "*.EOF"))
+    orbit_files = glob.glob(os.path.join(orbit_dir, "*.EOF"))
     orbit_list = []
     for sfile in safe_files:
         find_orbit = 0
@@ -132,34 +139,34 @@ def main(args):
         groups['input_file_group']['orbit_file_path'] = orbit_list
 
     # --- Update dynamic_ancillary_file_group ---
-    if args.dem_file:
-        print(f"Updating dem_file: {args.dem_file}")
-        groups['dynamic_ancillary_file_group']['dem_file'] = args.dem_file
+    if dem_file:
+        print(f"Updating dem_file: {dem_file}")
+        groups['dynamic_ancillary_file_group']['dem_file'] = dem_file
 
     # --- Update product_path_group ---
-    if args.product_path:
-        os.makedirs(args.product_path, exist_ok=True)
-        print(f"Updating product_path: {args.product_path}")
-        groups['product_path_group']['product_path'] = args.product_path
+    if product_path:
+        os.makedirs(product_path, exist_ok=True)
+        print(f"Updating product_path: {product_path}")
+        groups['product_path_group']['product_path'] = product_path
 
-    if args.scratch_path:
-        os.makedirs(args.scratch_path, exist_ok=True)
-        print(f"Updating scratch_path: {args.scratch_path}")
-        groups['product_path_group']['scratch_path'] = args.scratch_path
-    if args.sas_file:
-        print(f"Updating sas_output_file: {args.sas_file}")
-        groups['product_path_group']['sas_output_file'] = args.sas_file
+    if scratch_path:
+        os.makedirs(scratch_path, exist_ok=True)
+        print(f"Updating scratch_path: {scratch_path}")
+        groups['product_path_group']['scratch_path'] = scratch_path
+    if sas_file:
+        print(f"Updating sas_output_file: {sas_file}")
+        groups['product_path_group']['sas_output_file'] = sas_file
 
     # --- Update worker ---
-    if args.gpu_enabled:
+    if gpu_enabled:
         # yaml usually expects boolean values, so convert accordingly
-        bool_val = True if args.gpu_enabled else False
+        bool_val = True if gpu_enabled else False
         print(f"Updating gpu_enabled: {bool_val}")
         groups['worker']['gpu_enabled'] = bool_val
 
     # Write back to file
-    print(f"Saving updates to: {args.config_file}")
-    with open(args.config_file, 'w') as f:
+    print(f"Saving updates to: {config_file}")
+    with open(config_file, 'w') as f:
         yaml.dump(config, f)
 
     print("Done!")
@@ -167,4 +174,11 @@ def main(args):
 
 if __name__ == "__main__":
     args = args_parser()
-    main(args)
+    main(args.config_file,
+         args.safe_dir,
+         args.orbit_dir,
+         args.dem_file,
+         args.product_path,
+         args.scratch_path,
+         args.sas_file,
+         args.gpu_enabled)
